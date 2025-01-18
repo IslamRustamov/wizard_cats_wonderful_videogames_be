@@ -11,6 +11,6 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    puts data[:eskere]
+    puts data["eskere"]
   end
 end
