@@ -1,16 +1,25 @@
 class RoomChannel < ApplicationCable::Channel
   def subscribed
-    puts "HE HAS CONNECTED"
-    puts params[:room_id]
-    puts current_player
-    stream_from "room_#{params[:room_id]}"
-  end
+    @room = find_room
 
-  def unsubscribed
-    puts "he unsubscribed"
+    if !current_player
+      raise ActiveRecord::RecordNotFound
+    end
+
+    stream_for @room
   end
 
   def receive(data)
+    puts data
     puts data["eskere"]
+  end
+
+  private
+  def find_room
+    if room = Room.find_by(id: params[:room_id])
+      room
+    else
+      raise ActiveRecord::RecordNotFound
+    end
   end
 end

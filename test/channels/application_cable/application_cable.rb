@@ -10,13 +10,13 @@ class ApplicationCable::ConnectionTest < ActionCable::Connection::TestCase
     @player.delete
   end
 
-  test "connects to a websocket with correct player id" do
+  test "should connect to a websocket with correct player id" do
     connect params: { player_id: @player.id }
 
     assert_equal connection.current_player.id, @player.id
   end
 
-  test "rejects connection without params" do
+  test "should reject connection without params" do
     assert_reject_connection { connect }
   end
 end
