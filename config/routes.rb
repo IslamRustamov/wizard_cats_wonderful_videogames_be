@@ -18,6 +18,7 @@ Rails.application.routes.draw do
 
   Rails.application.routes.draw do
     post "/rooms", to: "rooms#create"
+    post "/rooms/:password", to: "rooms#join"
   end
 
   mount ActionCable.server => "/cable"

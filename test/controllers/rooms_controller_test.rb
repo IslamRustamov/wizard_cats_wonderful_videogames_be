@@ -33,6 +33,26 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil JSON.parse(@response.body)["player_id"]
   end
 
+  test "should be able to join new room by password" do
+    assert_difference("Room.count") do
+      post rooms_url, params: { game_type: "knucklebones" }
+    end
+
+    room_password = JSON.parse(@response.body)["password"]
+
+    first_player_id = JSON.parse(@response.body)["player_id"]
+
+    assert_difference("Player.count") do
+      post rooms_url + "/" + room_password
+    end
+
+    second_player_id = JSON.parse(@response.body)["player_id"]
+
+    assert_not_equal first_player_id, second_player_id
+
+    assert_equal Room.first.players.count, 2
+  end
+
   test "should create new player on room creation" do
     assert_difference("Player.count") do
       post rooms_url, params: { game_type: "knucklebones" }

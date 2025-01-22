@@ -13,4 +13,21 @@ class RoomsController < ApplicationController
 
     render json: { room_id: @room.id, player_id: @room.players.first.id, password: @room.password }
   end
+
+  def join
+    @room = find_room_by_password
+
+    @room.players.create()
+
+    render json: { room_id: @room.id, player_id: @room.players.second.id, password: @room.password }
+  end
+
+  private
+    def find_room_by_password
+      if room = Room.find_by(password: params[:password])
+        room
+      else
+        raise ActiveRecord::RecordNotFound
+      end
+    end
 end

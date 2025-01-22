@@ -2,8 +2,8 @@ require "test_helper"
 
 class RoomChannelTest < ActionCable::Channel::TestCase
   setup do
-    @player = Player.new
-    @player.save
+    @player_one = Player.new
+    @player_one.save
 
     @room = Room.new
 
@@ -15,12 +15,12 @@ class RoomChannelTest < ActionCable::Channel::TestCase
   end
 
   teardown do
-    @player.delete
+    @player_one.delete
     @room.delete
   end
 
   test "should subscribe with valid player and valid room id" do
-    stub_connection(current_player: @player)
+    stub_connection(current_player: @player_one)
 
     subscribe room_id: @room.id
 
@@ -28,15 +28,15 @@ class RoomChannelTest < ActionCable::Channel::TestCase
   end
 
   test "should has stream for valid user and valid room id" do
-    stub_connection(current_player: @player)
+    stub_connection(current_player: @player_one)
 
     subscribe room_id: @room.id
 
     assert_has_stream_for @room
   end
 
-  test "should accept message" do
-    stub_connection(current_player: @player)
+  test "should send message" do
+    stub_connection(current_player: @player_one)
 
     subscribe room_id: @room.id
 
@@ -45,8 +45,33 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     end
   end
 
+  test "should broadcast game step" do
+    stub_connection(current_player: @player_one)
+
+    subscribe room_id: @room.id
+
+    assert_broadcast_on(RoomChannel.broadcasting_for(@room), { command: "message", type: "game_step", data: { some: "data" } }) do
+      subscription.receive({ command: "message", type: "game_step", data: { some: "data" } })
+    end
+  end
+
+  test "should set winner" do
+    stub_connection(current_player: @player_one)
+
+    subscribe room_id: @room.id
+
+    assert_broadcast_on(RoomChannel.broadcasting_for(@room), { command: "message", type: "game_end", winner_id: @player_one.id }) do
+      subscription.receive({ command: "message", type: "game_end", winner_id: @player_one.id })
+    end
+
+    @room.reload
+
+    assert_equal @room.winner_id, @player_one.id
+    assert_equal @room.status, "inactive"
+  end
+
   test "should unsubscribe" do
-    stub_connection(current_player: @player)
+    stub_connection(current_player: @player_one)
 
     subscribe room_id: @room.id
 
@@ -56,7 +81,7 @@ class RoomChannelTest < ActionCable::Channel::TestCase
   end
 
   test "should throw an error if invalid room id passed" do
-    stub_connection(current_player: @player)
+    stub_connection(current_player: @player_one)
 
     assert_raises(ActiveRecord::RecordNotFound) do
       subscribe room_id: 15
