@@ -5,18 +5,23 @@ class RoomChannelTest < ActionCable::Channel::TestCase
     @player_one = Player.new
     @player_one.save
 
-    @room = Room.new
+    @game = Game.new
+    @game.name = "knucklebones"
+    @game.min_players = 2
+    @game.max_players = 2
+    @game.save
 
-    @room.game_type = "knucklebones"
+    @room = Room.new
+    @room.game = @game
     @room.status = "active"
     @room.password = (0...8).map { (65 + rand(26)).chr }.join
-
     @room.save
   end
 
   teardown do
     @player_one.delete
     @room.delete
+    @game.delete
   end
 
   test "should subscribe with valid player and valid room id" do
@@ -50,8 +55,8 @@ class RoomChannelTest < ActionCable::Channel::TestCase
 
     subscribe room_id: @room.id
 
-    assert_broadcast_on(RoomChannel.broadcasting_for(@room), { command: "message", type: "game_step", data: { some: "data" } }) do
-      subscription.receive({ command: "message", type: "game_step", data: { some: "data" } })
+    assert_broadcast_on(RoomChannel.broadcasting_for(@room), { action: "receive", type: "game_step", data: { some: "data" } }) do
+      perform :receive, { type: "game_step", data: { some: "data" } }
     end
   end
 
@@ -60,8 +65,8 @@ class RoomChannelTest < ActionCable::Channel::TestCase
 
     subscribe room_id: @room.id
 
-    assert_broadcast_on(RoomChannel.broadcasting_for(@room), { command: "message", type: "game_end", winner_id: @player_one.id }) do
-      subscription.receive({ command: "message", type: "game_end", winner_id: @player_one.id })
+    assert_broadcast_on(RoomChannel.broadcasting_for(@room), { action: "receive", type: "game_end", winner_id: @player_one.id }) do
+      perform :receive, { type: "game_end", winner_id: @player_one.id }
     end
 
     @room.reload

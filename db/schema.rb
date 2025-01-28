@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_21_180851) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_28_215217) do
+  create_table "games", force: :cascade do |t|
+    t.string "name"
+    t.integer "min_players"
+    t.integer "max_players"
+    t.integer "room_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["room_id"], name: "index_games_on_room_id"
+  end
+
   create_table "players", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -20,7 +30,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_21_180851) do
   end
 
   create_table "rooms", force: :cascade do |t|
-    t.string "game_type"
     t.string "status"
     t.string "password"
     t.datetime "created_at", null: false

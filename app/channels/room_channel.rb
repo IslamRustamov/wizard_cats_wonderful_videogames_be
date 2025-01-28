@@ -10,8 +10,8 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    if data[:type] == "game_end"
-      @room.update(winner_id: data[:winner_id], status: "inactive")
+    if data["type"] == "game_end"
+      @room.update(winner_id: data["winner_id"], status: "inactive")
     end
 
     broadcast_to(@room, data)
