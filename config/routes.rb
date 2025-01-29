@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
   Rails.application.routes.draw do
     get "/players", to: "players#index"
+    get "/games", to: "games#index"
   end
 
   Rails.application.routes.draw do
