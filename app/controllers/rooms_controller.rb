@@ -21,6 +21,11 @@ class RoomsController < ApplicationController
       raise ActiveRecord::ActiveRecordError
     end
 
+    # TODO: I need to somehow make rooms inactive
+    if @room.status == "inactive"
+      raise ActiveRecord::ActiveRecordError
+    end
+
     @room.players.create()
 
     render json: { room_id: @room.id, player_id: @room.players.second.id, password: @room.password }

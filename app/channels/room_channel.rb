@@ -7,6 +7,14 @@ class RoomChannel < ApplicationCable::Channel
     end
 
     stream_for @room
+
+    if @room.players.count >= @room.game.min_players
+      broadcast_to(@room, { type: "player_connected", data: { player_ids: @room.players.map { |player| player.id } } })
+    end
+  end
+
+  def unsubscribed
+    broadcast_to(@room, { type: "player_left", data: { player_id: current_player.id } })
   end
 
   def receive(data)

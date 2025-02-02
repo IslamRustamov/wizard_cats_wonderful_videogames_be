@@ -10,8 +10,8 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
 
     @game_two = Game.new
     @game_two.name = "fortnite"
-    @game_two.min_players = 2
-    @game_two.max_players = 2
+    @game_two.min_players = 3
+    @game_two.max_players = 3
     @game_two.save
   end
 
@@ -24,7 +24,9 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     get games_url
 
     assert_equal JSON.parse(@response.body)["games"].count, 2
-    assert JSON.parse(@response.body)["games"].include? @game_one.name
-    assert JSON.parse(@response.body)["games"].include? @game_two.name
+    assert JSON.parse(@response.body)["games"].find_index { |game| game["name"] == @game_one.name } != -1
+    assert JSON.parse(@response.body)["games"].find_index { |game| game["name"] == @game_two.name } != -1
+    assert JSON.parse(@response.body)["games"].find_index { |game| game["min_players"] == 2 } != -1
+    assert JSON.parse(@response.body)["games"].find_index { |game| game["min_players"] == 3 } != -1
   end
 end

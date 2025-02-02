@@ -56,7 +56,7 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     first_player_id = JSON.parse(@response.body)["player_id"]
 
     assert_difference("Player.count") do
-      post rooms_url + "/" + room_password
+      get rooms_url + "/" + room_password
     end
 
     second_player_id = JSON.parse(@response.body)["player_id"]
@@ -74,11 +74,11 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     room_password = JSON.parse(@response.body)["password"]
 
     assert_difference("Player.count") do
-      post rooms_url + "/" + room_password
+      get rooms_url + "/" + room_password
     end
 
     assert_raises(ActiveRecord::ActiveRecordError) do
-      post rooms_url + "/" + room_password
+      get rooms_url + "/" + room_password
     end
   end
 
