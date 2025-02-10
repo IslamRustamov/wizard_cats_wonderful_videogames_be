@@ -14,12 +14,16 @@ Rails.application.routes.draw do
 
   Rails.application.routes.draw do
     get "/players", to: "players#index"
+    post "/players", to: "players#create"
+  end
+
+  Rails.application.routes.draw do
     get "/games", to: "games#index"
   end
 
   Rails.application.routes.draw do
     post "/rooms", to: "rooms#create"
-    get "/rooms/:password", to: "rooms#join"
+    get "/rooms/:player_id/:password", to: "rooms#join"
   end
 
   mount ActionCable.server => "/cable"

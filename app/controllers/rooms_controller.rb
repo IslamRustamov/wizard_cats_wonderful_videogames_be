@@ -1,6 +1,8 @@
 class RoomsController < ApplicationController
   skip_before_action :verify_authenticity_token
   def create
+    @player = find_player_by_id
+
     @room = Room.new()
 
     @room.game = find_game_by_name
@@ -9,12 +11,14 @@ class RoomsController < ApplicationController
 
     @room.save
 
-    @room.players.create()
+    @room.players << @player
 
     render json: { room_id: @room.id, player_id: @room.players.first.id, password: @room.password }
   end
 
   def join
+    @player = find_player_by_id
+
     @room = find_room_by_password
 
     if @room.players.count == @room.game.max_players
@@ -26,12 +30,20 @@ class RoomsController < ApplicationController
       raise ActiveRecord::ActiveRecordError
     end
 
-    @room.players.create()
+    @room.players << @player
 
     render json: { room_id: @room.id, player_id: @room.players.second.id, password: @room.password }
   end
 
   private
+    def find_player_by_id
+      if player = Player.find_by(id: params[:player_id])
+        player
+      else
+        raise ActiveRecord::RecordNotFound
+      end
+    end
+
     def find_game_by_name
       if game = Game.find_by(name: params[:game_name])
         game
